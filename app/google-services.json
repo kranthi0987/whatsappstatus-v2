@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "349085290274",
+    "firebase_url": "https://sanjaydev-57edf.firebaseio.com",
+    "project_id": "sanjaydev-57edf",
+    "storage_bucket": "sanjaydev-57edf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:349085290274:android:0bdb0f8e4e9ff173",
+        "android_client_info": {
+          "package_name": "com.sanjaydev.whatsappstatus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "349085290274-4224fo52t20ajiracq7o5kta6fc74la2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sanjaydev.whatsappstatus",
+            "certificate_hash": "55bd4f8e9a3f80bf4182419a162610c7f750cabf"
+          }
+        },
+        {
+          "client_id": "349085290274-9n3aa73dnvsbjcut5ol9u5q4gmdjf0qh.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "349085290274-9n3aa73dnvsbjcut5ol9u5q4gmdjf0qh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQ85_0vmF69Hv7ls2yScHWUfMqKXbyuZQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "349085290274-9n3aa73dnvsbjcut5ol9u5q4gmdjf0qh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
