@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
+import com.optimizely.Optimizely;
 import com.snatik.storage.Storage;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class Splash_activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
+        Optimizely.startOptimizelyWithAPIToken(getString(R.string.com_optimizely_api_key), getApplication());
         setContentView(R.layout.activity_splash_activity);
         Log.d("splash", "onCreate: ");
         FullScreencall();
