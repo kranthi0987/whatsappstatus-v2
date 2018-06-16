@@ -16,10 +16,10 @@
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="false"
-        android:icon="@mipmap/whatsappnewlauncher"
+        android:icon="@mipmap/newwhatsappstatussquare"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:roundIcon="@mipmap/whatsappnewcircle"
+        android:roundIcon="@mipmap/newwhatsappstatus"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -37,27 +37,12 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Check_Updates"
-            android:label="@string/title_activity_check__updates" />
-        <activity android:name=".Viewimage" />
-        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity
-            android:name=".About_activity"
-            android:label="@string/title_activity_about_activity"
-            android:theme="@style/AppTheme.NoActionBar" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="e2c0969c6c04373a32f16337b72225ca7b6c1471" />
-
-        <activity
-            android:name=".Video_activity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:label="@string/title_activity_video_activity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".services.MyFirebaseMessagingService">
             <intent-filter>

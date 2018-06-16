@@ -6,8 +6,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/check_for_updates"
-        app:showAsAction="never" />
+        android:id="@+id/menu_rate"
+        android:icon="@drawable/ic_grade_black_24dp"
+        android:title="Rate"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_share"
+        android:icon="@drawable/ic_share_black_24dp"
+        android:title="Share"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -5,105 +5,77 @@
 
 package com.sanjaydev.whatsappstatus;
 
-import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.sanjaydev.whatsappstatus.app.Config;
 import com.sanjaydev.whatsappstatus.util.NotificationUtils;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Objects;
-
-import static com.sanjaydev.whatsappstatus.util.util.getMimeType;
 import static com.sanjaydev.whatsappstatus.util.util.sendFeedback;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String TAG = "MainActivity";
-    //File file;
-    ArrayList<File> list;
-    GridView gv;
-    File location = new File(Environment.getExternalStorageDirectory() + "/whatsapp/media/.Statuses/");
-    private String[] FilePathStrings;
-    private String[] FileNameStrings;
-    private File[] listFile;
+
     private AdView mAdView;
     private FirebaseAnalytics mFirebaseAnalytics;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            Log.d("", "onActivityResult: " + resultCode);
-            super.onRestart();
-        }
-    }
+    Toolbar toolbar;
+    TabLayout tabLayout;
+    ViewPager viewPager;
+    view_pager_adapter pager_adapter;
+    InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("528233662162CB7F55A66E9371EB3E56")
+                .build();
+        mAdView.loadAd(adRequest);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mAdView = findViewById(R.id.adView1);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-//        refresh();
-        //Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-*/
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "");
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-        //Log.d("adrequest", "onCreate: " + adRequest);
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -112,30 +84,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        // Check for SD Card
-       /* if (!Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED)) {
-            Toast.makeText(this, "Error! No SDCARD Found!", Toast.LENGTH_LONG)
-                    .show();
-        } else {
-            file = new File(Environment.getExternalStorageDirectory()
-                    + File.separator + "/whatsapp/media/.Statuses/");
-            Log.d("", "onCreate: " + file);
-            file.mkdirs();
-        }*/
 
-     /*   if (file.isDirectory()) {
-            listFile = file.listFiles();
-            FilePathStrings = new String[listFile.length];
-            FileNameStrings = new String[listFile.length];
-
-            for (int i = 0; i < listFile.length; i++) {
-                FilePathStrings[i] = listFile[i].getAbsolutePath();
-                FileNameStrings[i] = listFile[i].getName();
-                Log.d("", "strings: "+FilePathStrings[i]);
-                Log.d("", "names: "+FileNameStrings[i]);
-            }
-        }*/
         //push notification
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -152,51 +101,36 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
+//        MobileAds.initialize(getApplicationContext(),
+//                "ca-app-pub-2324532608407659~6719351639");
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        tabLayout = findViewById(R.id.tabs);
+        viewPager = findViewById(R.id.container);
+        pager_adapter = new view_pager_adapter(getSupportFragmentManager());
+        pager_adapter.add_fragments(new pictures(), "Pictures");
+        pager_adapter.add_fragments(new videos(), "Videos");
+        viewPager.setAdapter(pager_adapter);
+        tabLayout.setupWithViewPager(viewPager);
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-2324532608407659/5721254293");
 
-
-        list = imageReader(location);
-        // Log.d("", "location " + Environment.getExternalStorageDirectory());
-        gv = findViewById(R.id.gridview);
-        gv.setAdapter(new GridAdapter());
-
-        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @SuppressLint("NewApi")
+        mInterstitialAd.setAdListener(new AdListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
-                getMimeType(list.get(position).toString());
-                Log.d("", "meme" + getMimeType(list.get(position).toString()));
-                if (Objects.equals(getMimeType(list.get(position).toString()), "video/mp4")) {
-                    startActivity(new Intent(getApplicationContext(), Video_activity.class).putExtra("mp4", list.get(position).toString()));
-                } else {
-                    startActivity(new Intent(getApplicationContext(), Viewimage.class).putExtra("img", list.get(position).toString()));
-
-                }
+            public void onAdClosed() {
+                requestNewInterstitial();
             }
         });
-        // feedback preference click listener
+
+        requestNewInterstitial();
     }
 
-    ArrayList<File> imageReader(File dir) {
-        ArrayList<File> a = new ArrayList<>();
-        File[] files = dir.listFiles();
-        try {
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    a.addAll(imageReader(files[i]));
-                } else {
-                    if (files[i].getName().endsWith(".jpg") ||
-                            files[i].getName().endsWith(".mp4")) {
-                        a.add(files[i]);
-                        // Log.d("files", "imageReader: " + files[i]);
-                    }
-                }
-            }
-            //Log.i("a", "imageReader: " + a);
-        } catch (NullPointerException ex) {
-            Toast.makeText(getApplicationContext(), "no images", Toast.LENGTH_LONG).show();
-
-        }
-        return a;
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("528233662162CB7F55A66E9371EB3E56")
+                .build();
+        Log.d("adrequest", "onCreate: " + adRequest);
+        mInterstitialAd.loadAd(adRequest);
     }
 
     @Override
@@ -248,10 +182,51 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent i = new Intent(MainActivity.this, Check_Updates.class);
-            startActivity(i);
+        if (id == R.id.menu_rate) {
+            if (mInterstitialAd.isLoaded())
+                mInterstitialAd.show();
+
+            AlertDialog.Builder ad = new AlertDialog.Builder(MainActivity.this);
+            ad.setTitle("Do you Love this app?");
+            ad.setMessage("Then Rate Us 5 Stars!");
+            ad.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Uri uri = Uri.parse("market://details?id=" + getApplicationContext().getPackageName());
+                    Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+                    goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                            Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    try {
+                        startActivity(goToMarket);
+                    } catch (ActivityNotFoundException e) {
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                Uri.parse("http://play.google.com/store/apps/details?id=" + getApplicationContext().getPackageName())));
+                    }
+                }
+
+            });
+            ad.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            ad.show();
+            return true;
+        } else if (id == R.id.menu_share) {
+            if (mInterstitialAd.isLoaded())
+                mInterstitialAd.show();
+
+            Intent share = new Intent(android.content.Intent.ACTION_SEND);
+            share.setType("text/plain");
+            share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            share.putExtra(Intent.EXTRA_SUBJECT, "WA Status Saver");
+            share.putExtra(Intent.EXTRA_TEXT, "http://play.google.com/store/apps/details?id=" + getApplicationContext().getPackageName());
+            startActivity(Intent.createChooser(share, "Share to Friends!"));
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -261,7 +236,6 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         View parentLayout = findViewById(android.R.id.content);
         int id = item.getItemId();
-
         if (id == R.id.nav_camera) {
             // Handle the camera action
             Snackbar snackbar = Snackbar
@@ -294,85 +268,18 @@ public class MainActivity extends AppCompatActivity
                         }
                     });
             snackbar.show();
-        } else if (id == R.id.nav_manage) {
-            Intent i = new Intent(this, About_activity.class);
-            startActivity(i);
         } else if (id == R.id.nav_share) {
             sendFeedback(getApplicationContext());
-        } else if (id == R.id.nav_send) {
-            Intent i = new Intent(MainActivity.this, Check_Updates.class);
-            startActivity(i);
-            Log.d("", "onNavigationItemSelected: checking new version");
-            Toast.makeText(MainActivity.this, "checking for updates",
-                    Toast.LENGTH_LONG).show();
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    public Bitmap putOverlay(Bitmap bmp1, Bitmap overlay) {
-        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmOverlay);
-        Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
-
-        canvas.drawBitmap(bmp1, 0, 0, null);
-        canvas.drawBitmap(overlay, 0, 0, null);
-
-        return bmOverlay;
-    }
-
-    class GridAdapter extends BaseAdapter {
-
-        public Bitmap bitmap;
-        private android.content.Context context;
-
-        @Override
-        public int getCount() {
-            Log.d("", "getCount: " + list.size());
-            return list.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            Log.d("", "getItem: " + list.get(position));
-            return list.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
 
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            convertView = inflater.inflate(R.layout.single_grid, parent, false);
-            Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_play_arrow_white_24dp);
-            Log.d(TAG, "getView: " + getMimeType(list.get(position).toString()));
-            if (Objects.equals(getMimeType(list.get(position).toString()), "image/jpeg")) {
-                ImageView iv = convertView.findViewById(R.id.imageView3);
-                Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(list.get(position).toString()), 100, 100);
-                iv.setImageBitmap(ThumbImage);//Creation of Thumbnail of image
-            } else if (Objects.equals(getMimeType(list.get(position).toString()), "video/mp4")) {
-                Bitmap bMap = ThumbnailUtils.createVideoThumbnail(list.get(position).toString(), MediaStore.Video.Thumbnails.MICRO_KIND);
-                ImageView iv = convertView.findViewById(R.id.imageView3);
-//                putOverlay(bMap,largeIcon);
-                iv.setImageBitmap(putOverlay(bMap, largeIcon));
-            }
-
-            return convertView;
 
 
-//            ImageView iv = convertView.findViewById(R.id.imageView3);
-//            iv.setImageURI(Uri.parse(getItem(position).toString()));
-//
-//            return convertView;
-        }
 
-
-    }
 
 }
